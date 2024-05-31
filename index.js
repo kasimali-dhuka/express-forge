@@ -143,15 +143,25 @@ const buildExpressSkeleton = async (appName, path, options) => {
 
   // Initialize sequelize ORM
   if (answers.database === 'mysql') {
-    shell.exec(`npx sequelize init`, { silent: true });
-    // Create sequelize config file
-    await createDatabaseJsConfigFile(appPath, answers.database);
-    // Create a users model, migration and seeder
-    shell.exec(
-      `npx sequelize model:create --name user --attributes first_name:string,last_name:string,profile_pic:string,username:string,password:string,email:string,phone:string`,
-      { silent: true }
-    );
-    shell.exec(`npx sequelize seed:create --name user`, { silent: true });
+    const sequelizeAnswer = await inquirer.prompt({
+      type: 'list',
+      name: 'iSequelize',
+      message: 'For MySQL, sequelize-cli needs to be installed globally. Are you okay with it?',
+      choices: ['yes', 'no'],
+    })
+
+    if (sequelizeAnswer.iSequelize === 'yes') {
+      shell.exec(`npm i -g sequelize-cli`, { silent: true });
+      shell.exec(`npx sequelize init`, { silent: true });
+
+      await createDatabaseJsConfigFile(appPath, answers.database);
+      // Create a users model, migration and seeder
+      shell.exec(
+        `npx sequelize model:create --name user --attributes first_name:string,last_name:string,profile_pic:string,username:string,password:string,email:string,phone:string`,
+        { silent: true }
+      );
+      shell.exec(`npx sequelize seed:create --name user`, { silent: true });
+    }
   }
 
   console.log('\n## ' + chalk.yellow(chalk.italic('Initializing git...')));

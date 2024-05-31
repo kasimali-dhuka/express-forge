@@ -1,6 +1,6 @@
 {
   "name": "express-forge",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An open-source npm package designed to streamline the process of setting up an Express.js project. It allows developers to quickly create a project skeleton with configurable options for application type, database and template engine.",
   "main": "index.js",
   "scripts": {
@@ -44,8 +44,6 @@
   "devDependencies": {
     "@eslint/js": "^9.3.0",
     "eslint": "^9.3.0",
-    "eslint-plugin-json": "^4.0.0",
-    "globals": "^15.3.0",
     "prettier": "^3.2.5"
   }
 }

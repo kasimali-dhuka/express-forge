@@ -1,4 +1,4 @@
-# EXPRESSJS-FORGE
+# EXPRESS-FORGE
 
 ## Introduction
 
@@ -137,11 +137,19 @@ You can install express-forge globally using npm:
 npm install -g express-forge
 ```
 
-#### 3. What are the system requirements?
+#### 3. How do I update express-forge?
+
+You can update express-forge globally using npm:
+
+```bash
+npm update -g express-forge
+```
+
+#### 4. What are the system requirements?
 
 Node.js v7.6.0 or higher is required to use express-forge.
 
-#### 4. How do I create a new project?
+#### 5. How do I create a new project?
 
 Use the following command to create a new project:
 
@@ -151,19 +159,19 @@ express-forge <project_name> --db=<database> --app=<app_type> --template=<templa
 
 Replace <project-name>, <database>, <app_type>, and <template_engine> with your desired values.
 
-#### 5. What databases are supported?
+#### 6. What databases are supported?
 
 Currently, express-forge supports mysql and mongoose.
 
-#### 6. What application types can I create?
+#### 7. What application types can I create?
 
 You can create two types of applications: web and api.
 
-#### 7. What template engines are supported?
+#### 8. What template engines are supported?
 
 Currently, express-forge supports ejs, pug, and express-handlebars.
 
-#### 8. How do I start the server?
+#### 9. How do I start the server?
 
 Navigate to the project directory and run:
 
@@ -175,15 +183,23 @@ OR
 npm run start
 ```
 
-#### 9. Can I contribute to express-forge?
+#### 10. How do I start the tailwindcss compiler?
+
+```express-forge``` is already installed with tailwindcss and also initialized. We have already added the compiler command in the package.json file. You can start the tailwindcss compiler by navigating to the project directory and run:
+
+```bash
+npm run watch
+```
+
+#### 11. Can I contribute to express-forge?
 
 Yes, contributions are welcome! Please read the contributing guidelines (add a link to your contributing guidelines if available).
 
-#### 10. Where can I report issues or suggest features?
+#### 12. Where can I report issues or suggest features?
 
 You can report issues or suggest features on the GitHub Issues page.
 
-#### 11. How do I update express-forge?
+#### 13. How do I update express-forge?
 
 To update to the latest version, run:
 
