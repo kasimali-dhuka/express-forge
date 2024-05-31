@@ -22,7 +22,7 @@ const validTemplateOptions = ['ejs', 'pug', 'handlebars', 'express-handlebars'];
 // Function to display help information
 const displayHelp = (projectName) => {
   console.log(`
-Express Build App (version: ${version})
+Express Forge App (version: ${version})
 
 Usage: express-forge <project-name> [options]
 
