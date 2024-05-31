@@ -1,0 +1,51 @@
+{
+  "name": "express-forge",
+  "version": "1.0.0",
+  "description": "An open-source npm package designed to streamline the process of setting up an Express.js project. It allows developers to quickly create a project skeleton with configurable options for application type, database and template engine.",
+  "main": "index.js",
+  "scripts": {
+    "check": "npm run lint",
+    "lint": "eslint **/*.js",
+    "prettier": "npx prettier --write ."
+  },
+  "bin": {
+    "express-forge": "./bin/script.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kasimali-dhuka/express-forge.git"
+  },
+  "keywords": [
+    "express",
+    "mysql",
+    "mongoose",
+    "sequelize",
+    "template"
+  ],
+  "author": {
+    "name": "Kasimali Dhuka",
+    "url": "https://github.com/kasimali-dhuka"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kasimali-dhuka/express-forge/issues"
+  },
+  "homepage": "https://github.com/kasimali-dhuka/express-forge#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.17.1",
+    "fs-extra": "^9.0.1",
+    "minimist": "^1.2.8",
+    "shelljs": "^0.8.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.3.0",
+    "eslint": "^9.3.0",
+    "eslint-plugin-json": "^4.0.0",
+    "globals": "^15.3.0",
+    "inquirer": "^8.0.0",
+    "prettier": "^3.2.5"
+  }
+}
