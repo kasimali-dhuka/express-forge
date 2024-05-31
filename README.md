@@ -199,14 +199,6 @@ Yes, contributions are welcome! Please read the contributing guidelines (add a l
 
 You can report issues or suggest features on the GitHub Issues page.
 
-#### 13. How do I update express-forge?
-
-To update to the latest version, run:
-
-```bash
-npm update -g express-forge
-```
-
 ## License
 
 [MIT License](LICENSE)
