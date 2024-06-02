@@ -163,7 +163,7 @@ const generateModelIndexJsCode = (database) => {
 
         const connectMongo = async () => {
             try {
-                return mongoose.connect(${process.env.DB_CONN_STR}/${process.env.DB_NAME})
+                return mongoose.connect(process.env.DB_CONN_STR +"/" + process.env.DB_NAME)
             } catch (err) {
                 console.error('DB Connection Error...!')
             }
