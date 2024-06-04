@@ -14,7 +14,7 @@ async function updatePackageJson(appPath, appType) {
       test: 'echo "Error: no test specified" && exit 1',
     };
 
-    if (appType === 'web') {
+    if (appType !== 'api') {
       packageJson.scripts.watch =
         'npx tailwindcss -i ./src/assets/css/input.css -o ./public/css/main.css --watch';
     }

@@ -38,18 +38,35 @@ const buildExpressSkeleton = async (appName, path, options) => {
     });
   }
 
-  if (!options?.appType || !['web', 'api'].includes(options.appType)) {
+  if (!options?.appType || !['web', 'api', 'both'].includes(options.appType)) {
     questions.push({
       type: 'list',
       name: 'appType',
       message: 'What type of application do you want to create?',
-      choices: ['api', 'web'],
+      choices: [
+        {name: 'API', value: 'api'},
+        {name: 'Web', value: 'web'},
+        {name: 'Both (Web + API)', value: 'both'}
+      ],
+    });
+  }
+
+  if (!options?.socket || !['socket.io', 'websocket'].includes(options.socket)) {
+    questions.push({
+      type: 'list',
+      name: 'socket',
+      message: 'Do you need socket implementation?',
+      choices: [
+        {name: 'Socket.IO', value: 'socket.io'},
+        {name: 'WebSocket', value: 'websocket'},
+        {name: 'No', value: 'no'}
+      ],
     });
   }
 
   if (
     (options?.appType &&
-      options.appType === 'web' &&
+      (options.appType === 'web' || options.appType === 'both') &&
       !['ejs', 'pug'].includes(options.templateEngine)) ||
     (!options?.appType && !options?.templateEngine)
   ) {
@@ -63,7 +80,12 @@ const buildExpressSkeleton = async (appName, path, options) => {
         { name: 'Handlebars', value: 'express-handlebars' },
         { name: 'None', value: 'none' },
       ],
-      when: (answers) => answers.appType === 'web' || options.appType === 'web',
+      when: (answers) => (
+        answers.appType === 'web' ||
+        answers.appType === 'both' ||
+        options.appType === 'web' ||
+        options.appType === 'both'
+      ),
     });
   }
 
@@ -91,9 +113,9 @@ const buildExpressSkeleton = async (appName, path, options) => {
   let updatedPackageJson = await updatePackageJson(appPath, answers.appType);
   console.log(updatedPackageJson);
 
-  if (answers.appType === 'api') dependencies += ' express-fileupload cors';
+  if (answers.appType !== 'web') dependencies += ' express-fileupload cors';
   if (
-    answers.appType === 'web' &&
+    answers.appType !== 'api' &&
     ['ejs', 'pug', 'express-handlebars'].includes(answers.templateEngine)
   ) {
     dependencies += ' ' + answers.templateEngine;
@@ -173,7 +195,7 @@ const buildExpressSkeleton = async (appName, path, options) => {
   console.log(`└── ${chalk.italic.bold(appName)}
     ├── ${chalk.italic.bold('public')}
     ${
-      answers.appType === 'web'
+      (answers.appType !== 'api')
         ? `|   ├── ${chalk.italic.bold('images')}
     |   ├── ${chalk.italic.bold('js')}
     |   └── ${chalk.italic.bold('css')}`
@@ -190,7 +212,7 @@ const buildExpressSkeleton = async (appName, path, options) => {
         : `|`
     }
     ${
-      answers.appType !== 'web'
+      answers.appType === 'api'
         ? `├── ${chalk.italic.bold('src')}`
         : `├── ${chalk.italic.bold('src')}
     |   ├── ${chalk.italic.bold('assets')}
@@ -231,7 +253,7 @@ const buildExpressSkeleton = async (appName, path, options) => {
     └── ${chalk.italic.bold('.git')}
   `);
 
-  if (answers.appType === 'web')
+  if (answers.appType !== 'api')
     shell.exec(
       'npx tailwindcss -i ./src/assets/css/input.css -o ./public/css/main.css',
       { silent: true }

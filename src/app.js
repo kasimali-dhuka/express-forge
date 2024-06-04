@@ -100,7 +100,7 @@ const createTailwindConfigAndInputCssFile = async (
   templateEngine
 ) => {
   try {
-    if (appType !== 'web' || templateEngine == 'none') return false;
+    if (appType === 'api' || templateEngine === 'none') return false;
 
     let tailwindConfigCode = generateTailwindConfigCode();
     let inputCssCode = generateInputCssCode();
@@ -114,7 +114,7 @@ const createTailwindConfigAndInputCssFile = async (
 
 const createViewFiles = async (path, appType, templateEngine) => {
   try {
-    if (appType !== 'web' || templateEngine == 'none') return false;
+    if (appType === 'api' || templateEngine === 'none') return false;
 
     let ext =
       templateEngine === 'express-handlebars'
