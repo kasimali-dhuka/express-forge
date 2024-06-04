@@ -32,7 +32,7 @@ const generateIndexJsCode = (appType, templateEngine) => {
               ? "const exphbs = require('express-handlebars')"
               : ''
         } ${
-          appType !== 'web'
+          appType === 'api'
             ? `
         const fileUpload = require('express-fileupload')
         const cors = require('cors')
@@ -49,7 +49,7 @@ const generateIndexJsCode = (appType, templateEngine) => {
         app.use(express.static(path.join(__dirname, 'public')))
     `;
 
-  if (appType !== 'api') {
+  if (appType === 'web') {
     code += `
         app.set('views', path.join(__dirname, 'src/views'));
         ${
@@ -63,7 +63,7 @@ const generateIndexJsCode = (appType, templateEngine) => {
         `;
   }
 
-  if (appType !== 'web') {
+  if (appType === 'api') {
     code += `
         app.use(cors({ origin: '*' }))
         app.use(express.json())
@@ -106,8 +106,6 @@ const generateModelIndexJsCode = (database) => {
         const process = require('process')`
             : `const mongoose = require('mongoose')`
         }
-        const Sequelize = require('sequelize')
-        const process = require('process')
         const basename = path.basename(__filename)
         ${
           database === 'mysql'
@@ -235,7 +233,7 @@ const generateProjectFolderStructure = (dirPath, appName, options) => {
   // Create src directory
   fs.mkdirSync(`${dirPath}/${appName}/src`);
 
-  if (options.appType !== 'api') {
+  if (options.appType === 'web') {
     // Create js directory in public
     fs.mkdirSync(`${dirPath}/${appName}/public/js`);
     // Create css directory in public

@@ -51,18 +51,18 @@ const buildExpressSkeleton = async (appName, path, options) => {
     });
   }
 
-  if (!options?.socket || !['socket.io', 'websocket'].includes(options.socket)) {
-    questions.push({
-      type: 'list',
-      name: 'socket',
-      message: 'Do you need socket implementation?',
-      choices: [
-        {name: 'Socket.IO', value: 'socket.io'},
-        {name: 'WebSocket', value: 'websocket'},
-        {name: 'No', value: 'no'}
-      ],
-    });
-  }
+  // if (!options?.socket || !['socket.io', 'websocket'].includes(options.socket)) {
+  //   questions.push({
+  //     type: 'list',
+  //     name: 'socket',
+  //     message: 'Do you need socket implementation?',
+  //     choices: [
+  //       {name: 'Socket.IO', value: 'socket.io'},
+  //       {name: 'WebSocket', value: 'websocket'},
+  //       {name: 'No', value: 'no'}
+  //     ],
+  //   });
+  // }
 
   if (
     (options?.appType &&
