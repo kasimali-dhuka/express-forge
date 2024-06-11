@@ -1,4 +1,4 @@
-# EXPRESS-FORGE  [![npm version](https://badge.fury.io/js/express-forge.svg)](https://badge.fury.io/js/express-forge)
+# EXPRESS-FORGE [![npm version](https://badge.fury.io/js/express-forge.svg)](https://badge.fury.io/js/express-forge)
 
 ## Introduction
 
@@ -65,7 +65,9 @@ To start the server, from the server directory, run:
 ```bash
 npm run dev
 ```
+
 OR
+
 ```bash
 npm run start
 ```
@@ -178,14 +180,16 @@ Navigate to the project directory and run:
 ```bash
 npm run dev
 ```
+
 OR
+
 ```bash
 npm run start
 ```
 
 #### 10. How do I start the tailwindcss compiler?
 
-```express-forge``` is already installed with tailwindcss and also initialized. We have already added the compiler command in the package.json file. You can start the tailwindcss compiler by navigating to the project directory and run:
+`express-forge` is already installed with tailwindcss and also initialized. We have already added the compiler command in the package.json file. You can start the tailwindcss compiler by navigating to the project directory and run:
 
 ```bash
 npm run watch

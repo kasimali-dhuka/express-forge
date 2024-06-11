@@ -12,6 +12,7 @@ async function updatePackageJson(appPath, appType) {
       start: 'node index.js',
       dev: 'nodemon index.js',
       test: 'echo "Error: no test specified" && exit 1',
+      prettier: "npx prettier --write ."
     };
 
     if (appType !== 'api') {
@@ -29,5 +30,5 @@ async function updatePackageJson(appPath, appType) {
 }
 
 module.exports = {
-  updatePackageJson,
+  updatePackageJson
 };

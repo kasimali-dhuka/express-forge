@@ -8,5 +8,5 @@ const Authentication = async (req, res, next) => {
 };
 
 module.exports = {
-  AUTH: [Authentication],
+  AUTH: [Authentication]
 };

@@ -19,33 +19,47 @@ const dedent = (str) => {
     .join('\n');
 };
 
-const generateIndexJsCode = (appType, templateEngine) => {
+const generateIndexJsCode = (appType, templateEngine, socket = 'no') => {
   let code = `
         require('dotenv').config()
 
         const express = require('express')
         const path = require('path')
-        ${
+        ${socket !== 'no' ? "const http = require('http')" : ''}
+        ${socket === 'websocket' ? "const WebSocket = require('ws')\n" : ''}${
           templateEngine === 'ejs'
             ? "const expressLayouts = require('express-ejs-layouts')"
             : templateEngine === 'express-handlebars'
               ? "const exphbs = require('express-handlebars')"
               : ''
-        } ${
+        }${
           appType !== 'web'
             ? `
         const fileUpload = require('express-fileupload')
-        const cors = require('cors')
-        `
+        const cors = require('cors')`
             : ''
         }
         const { xss } = require('express-xss-sanitizer')
         const { invalidEndpoint, exceptionHandler } = require('./src/middlewares/error.middleware')
         const routes = require('./src/routes')
-
+        ${socket !== 'no' ? "const { initSocket } = require('./socket')\n" : ''}
         const app = express()
         const PORT = process.env.PORT || 3000
-
+        ${
+          socket !== 'no'
+            ? `const server = http.createServer(app)
+        ${
+          socket === 'socket.io'
+            ? `const io = require('socket.io')(server, {
+          cors: {
+            origin: '*'
+          }
+        })`
+            : 'const wss = new WebSocket.Server({ server })'
+        }
+        `
+            : ''
+        }
         app.use(express.static(path.join(__dirname, 'public')))
     `;
 
@@ -84,14 +98,75 @@ const generateIndexJsCode = (appType, templateEngine) => {
         // Error handler middleware
         app.use(exceptionHandler)
     `;
+  if (socket !== 'no') {
+    code += `
+        // Initialize socket connection
+        initSocket(${socket === 'socket.io' ? 'io' : 'wss'})
+    `;
+  }
 
   code += `
-        app.listen(PORT, () => {
-            console.log('Server is listening at localhost:'+PORT)
-        })
-    `;
+        ${socket === 'no' ? 'app' : 'server'}.listen(PORT, () => {
+          console.log('Server is listening at: http://localhost:'+PORT)
+        })`;
 
   return dedent(code);
+};
+
+const generateSocketCode = (socket) => {
+  return dedent(`
+  const initSocket = (${socket === 'socket.io' ? 'io' : 'wss'}) => {
+    ${
+      socket === 'socket.io'
+        ? `io.on('connection', (socket) => {
+      // Handle join event
+      socket.on('join', (data) => {
+        let joinData = typeof data === 'string' ? JSON.parse(data) : data
+        socket.username = joinData.username;
+        io.emit('message', JSON.stringify({ ...joinData, type: 'notify' }));
+      });
+        
+      // Handle incoming messages event
+      socket.on('chat-message', (msg) => {
+        let msgData = typeof msg === 'string' ? JSON.parse(msg) : msg
+        io.emit('message', JSON.stringify({ type: 'chat', username: socket.username, ...msgData }));
+      });
+  
+      // Handle Socket disconnect event
+      socket.on('disconnect', () => {
+          io.emit('message', socket.username+' has left the chat');
+      });
+    });`
+          : `wss.on('connection', (ws) => {
+      console.log('New client connected');
+    
+      // Handle incoming messages
+      ws.on('message', (data, isBinary) => {
+        let messageData = isBinary ? data : data.toString()
+        // If the past string is in JSON format
+        // parseData = JSON.parse(messageData)
+
+        // Broadcast the message to all clients
+        wss.clients.forEach((client) => {
+          if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(messageData);
+          }
+        });
+      });
+    
+      // Handle client disconnect event
+      ws.on('close', (code, data) => {
+        // Reason for websocket disconnection
+        let reason = data.toString()
+        console.log('Client disconnected');
+      });
+    });`
+    }
+  }
+
+  module.exports = {
+    initSocket
+  }`);
 };
 
 const generateModelIndexJsCode = (database) => {
@@ -174,9 +249,7 @@ const generateModelIndexJsCode = (database) => {
         `
         }
         
-        module.exports = db
-    
-    `;
+        module.exports = db`;
 
   return dedent(code);
 };
@@ -218,8 +291,7 @@ const generateUserModelCode = (database) => {
             
             const User = mongoose.model('User', user_schema);
             
-            module.exports = User;
-        `;
+            module.exports = User;`;
   }
 
   return dedent(code);
@@ -286,8 +358,7 @@ const generateErrorMiddlewareCode = (appType) => {
         module.exports = {
             invalidEndpoint,
             exceptionHandler
-        }
-    `;
+        }`;
 
   return dedent(code);
 };
@@ -336,8 +407,7 @@ const generateENVcode = (database) => {
         SESSION_KEY=
         
         # Server PORT number
-        PORT=3000
-    `;
+        PORT=3000`;
 
   return dedent(code);
 };
@@ -457,8 +527,7 @@ const generategitIgnorecode = () => {
         todo/*
         
         # upload directory
-        uploads/*
-    `;
+        uploads/*`;
 
   return dedent(code);
 };
@@ -494,8 +563,7 @@ const generateSequelizeConfigCode = () => {
                 port: process.env.PDB_PORT,
                 dialect: process.env.PDB_CONNECTION
             }
-        };
-    `;
+        }`;
 
   return dedent(code);
 };
@@ -510,8 +578,7 @@ const generateSequelizeSrcCode = () => {
             'models-path': path.resolve('src', 'models'),
             'seeders-path': path.resolve('database', 'seeders'),
             'migrations-path': path.resolve('database', 'migrations')
-        }
-    `;
+        }`;
 
   return dedent(code);
 };
@@ -535,16 +602,14 @@ const generateTailwindConfigCode = () => {
                 },
             },
             plugins: [],
-        }
-    `);
+        }`);
 };
 
 const generateInputCssCode = () => {
   return dedent(`
         @tailwind base;
         @tailwind components;
-        @tailwind utilities;
-    `);
+        @tailwind utilities;`);
 };
 
 const generateLayoutCode = (templateEngine) => {
@@ -570,8 +635,7 @@ const generateLayoutCode = (templateEngine) => {
                         <%- include('../partials/footer') %>
                     </div>
                 </body>
-            </html>
-        `;
+            </html>`;
   }
 
   if (templateEngine === 'pug') {
@@ -587,8 +651,7 @@ const generateLayoutCode = (templateEngine) => {
                     div(class="body-wrapper bg-[url('/images/bg.jpg')] bg-no-repeat bg-cover bg-center")
                         include ../partials/header
                         block content
-                        include ../partials/footer
-        `;
+                        include ../partials/footer`;
   }
 
   if (templateEngine === 'express-handlebars') {
@@ -606,8 +669,7 @@ const generateLayoutCode = (templateEngine) => {
                     {{{body}}}
                     </div>
                 </body>
-            </html>
-        `;
+            </html>`;
   }
 
   return dedent(code);
@@ -621,23 +683,20 @@ const generateHeaderCode = (templateEngine) => {
     code = `
             <header class="bg-gray-800 p-4 hidden">
                 <h1 class="text-white text-center text-2xl"><%= appName %></h1>
-            </header>
-        `;
+            </header>`;
   }
 
   if (templateEngine === 'pug') {
     code = `
             header.bg-gray-800.p-4.hidden
-                h1.text-white.text-center.text-2xl #{appName}
-        `;
+                h1.text-white.text-center.text-2xl #{appName}`;
   }
 
   if (templateEngine === 'express-handlebars') {
     code = `
             <header class="bg-gray-800 p-4 hidden">
                 <h1 class="text-white text-center text-2xl">{{appName}}</h1>
-            </header>    
-        `;
+            </header>`;
   }
 
   return dedent(code);
@@ -651,23 +710,20 @@ const generateFooterCode = (templateEngine) => {
     code = `
             <footer class="bg-gray-800 p-4 mt-4 hidden">
                 <p class="text-white text-center">© 2024 <%= appName %></p>
-            </footer>
-        `;
+            </footer>`;
   }
 
   if (templateEngine === 'pug') {
     code = `
             footer.bg-gray-800.p-4.mt-4.hidden
-                p.text-white.text-center © 2024 #{appName}
-        `;
+                p.text-white.text-center © 2024 #{appName}`;
   }
 
   if (templateEngine === 'express-handlebars') {
     code = `
             <footer class="bg-gray-800 p-4 mt-4 hidden">
                 <p class="text-white text-center">© 2024 {{appName}}</p>
-            </footer>
-        `;
+            </footer>`;
   }
 
   return dedent(code);
@@ -694,8 +750,7 @@ const generateWelcomePageCode = (templateEngine) => {
                     <a href="#" class="underline inline-block mt-3 text-sky-600">Explore More</a>
                 </p>
             </div>
-        </div>
-        `;
+        </div>`;
   }
 
   if (templateEngine === 'pug') {
@@ -710,8 +765,7 @@ const generateWelcomePageCode = (templateEngine) => {
                             img.max-w-full.mx-auto(src="/images/expressjs.png" alt="Express Logo")
                             p.mt-5.text-center
                                 span.text-xl.block Modify as you go.
-                                a.underline.inline-block.mt-3.text-sky-600(href="#") Explore More
-        `;
+                                a.underline.inline-block.mt-3.text-sky-600(href="#") Explore More`;
   }
 
   if (templateEngine === 'express-handlebars') {
@@ -736,12 +790,23 @@ const generateWelcomePageCode = (templateEngine) => {
                     </div>
                 </main>
             
-            {{> footer}}        
-        `;
+            {{> footer}}`;
   }
 
   return dedent(code);
 };
+
+const generatePrettierConfigCode = () => {
+  return dedent(`
+  {
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true,
+    "bracketSpacing": true,
+    "trailingComma": "none"
+  }  
+  `)
+}
 
 module.exports = {
   generateIndexJsCode,
@@ -759,4 +824,6 @@ module.exports = {
   generateHeaderCode,
   generateFooterCode,
   generateWelcomePageCode,
+  generateSocketCode,
+  generatePrettierConfigCode
 };

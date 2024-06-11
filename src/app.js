@@ -15,14 +15,26 @@ const {
   generateFooterCode,
   generateWelcomePageCode,
   generateLayoutCode,
+  generateSocketCode,
+  generatePrettierConfigCode
 } = require('./utils/generator');
 
-const createIndexFile = async (path, appType, templateEngine) => {
+const createIndexFile = async (path, appType, templateEngine, socket) => {
   try {
-    const indexJsCode = generateIndexJsCode(appType, templateEngine);
+    const indexJsCode = generateIndexJsCode(appType, templateEngine, socket);
     await fs.writeFile(path + '/index.js', indexJsCode);
   } catch (error) {
     console.error('Error creating index file:', error);
+  }
+};
+
+const createSocketFile = async (path, socket) => {
+  try {
+    if (!socket || socket === 'no') return false;
+    const socketCode = generateSocketCode(socket);
+    await fs.writeFile(path + '/socket.js', socketCode);
+  } catch (error) {
+    console.error('Error socket file:', error);
   }
 };
 
@@ -137,6 +149,15 @@ const createViewFiles = async (path, appType, templateEngine) => {
   }
 };
 
+const createPrettierConfigFile = async (path) => {
+  try {
+    let prettierConfigCode = generatePrettierConfigCode();
+    await fs.writeFile(`${path}/.prettierrc.json`, prettierConfigCode);
+  } catch (error) {
+    console.error('Error while creating prettier config file : ', error);
+  }
+}
+
 module.exports = {
   createIndexFile,
   createModelIndexFile,
@@ -147,4 +168,6 @@ module.exports = {
   createSequelizesrcFile,
   createTailwindConfigAndInputCssFile,
   createViewFiles,
+  createSocketFile,
+  createPrettierConfigFile
 };

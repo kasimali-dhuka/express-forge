@@ -12,6 +12,8 @@ const {
   createENVandGitIgnorefile,
   createTailwindConfigAndInputCssFile,
   createViewFiles,
+  createSocketFile,
+  createPrettierConfigFile
 } = require('./src/app');
 const { copyFiles, installDependencies } = require('./src/utils/helper');
 const { updatePackageJson } = require('./src/utils/setup-script');
@@ -20,7 +22,7 @@ const source = __dirname;
 const buildExpressSkeleton = async (appName, path, options) => {
   const appPath = `${process.cwd()}/${appName}`;
   let dependencies = 'express express-xss-sanitizer dotenv moment';
-  let devDependencies = 'nodemon';
+  let devDependencies = 'nodemon prettier';
 
   // Questions to create express project
   const questions = [];
@@ -33,8 +35,8 @@ const buildExpressSkeleton = async (appName, path, options) => {
       choices: [
         { name: 'MongoDB (mongoose)', value: 'mongoose' },
         { name: 'MySQL (sequelize)', value: 'mysql' },
-        { name: 'None', value: 'none' },
-      ],
+        { name: 'None', value: 'none' }
+      ]
     });
   }
 
@@ -44,25 +46,28 @@ const buildExpressSkeleton = async (appName, path, options) => {
       name: 'appType',
       message: 'What type of application do you want to create?',
       choices: [
-        {name: 'API', value: 'api'},
-        {name: 'Web', value: 'web'},
-        {name: 'Both (Web + API)', value: 'both'}
-      ],
+        { name: 'API', value: 'api' },
+        { name: 'Web', value: 'web' },
+        { name: 'Both (Web + API)', value: 'both' }
+      ]
     });
   }
 
-  // if (!options?.socket || !['socket.io', 'websocket'].includes(options.socket)) {
-  //   questions.push({
-  //     type: 'list',
-  //     name: 'socket',
-  //     message: 'Do you need socket implementation?',
-  //     choices: [
-  //       {name: 'Socket.IO', value: 'socket.io'},
-  //       {name: 'WebSocket', value: 'websocket'},
-  //       {name: 'No', value: 'no'}
-  //     ],
-  //   });
-  // }
+  if (
+    !options?.socket ||
+    !['socket.io', 'websocket'].includes(options.socket)
+  ) {
+    questions.push({
+      type: 'list',
+      name: 'socket',
+      message: 'Do you need socket implementation?',
+      choices: [
+        { name: 'No', value: 'no' },
+        { name: 'Socket.IO', value: 'socket.io' },
+        { name: 'WebSocket', value: 'websocket' }
+      ]
+    });
+  }
 
   if (
     (options?.appType &&
@@ -78,14 +83,13 @@ const buildExpressSkeleton = async (appName, path, options) => {
         { name: 'EJS', value: 'ejs' },
         { name: 'Pug', value: 'pug' },
         { name: 'Handlebars', value: 'express-handlebars' },
-        { name: 'None', value: 'none' },
+        { name: 'None', value: 'none' }
       ],
-      when: (answers) => (
+      when: (answers) =>
         answers.appType === 'web' ||
         answers.appType === 'both' ||
         options.appType === 'web' ||
         options.appType === 'both'
-      ),
     });
   }
 
@@ -126,6 +130,9 @@ const buildExpressSkeleton = async (appName, path, options) => {
   }
   if (answers.database === 'mysql') dependencies += ' sequelize mysql2';
   if (answers.database === 'mongoose') dependencies += ' mongoose';
+  if (answers.socket !== 'no') {
+    dependencies += answers.socket === 'websocket' ? ' ws' : ' ' + answers.socket
+  }
 
   // Install all the dependencies
   console.log('\n## ' + chalk.yellow('Installing dependencies ....'));
@@ -143,7 +150,14 @@ const buildExpressSkeleton = async (appName, path, options) => {
   // Copy images
   await copyFiles(`${source}/src/assets/images`, `${appPath}/public/images`);
   // Create Index file based on application type
-  await createIndexFile(appPath, answers.appType, answers.templateEngine);
+  await createIndexFile(
+    appPath,
+    answers.appType,
+    answers.templateEngine,
+    answers.socket
+  );
+  // Create Socket file based on socket choice
+  await createSocketFile(appPath, answers.socket);
   // Create sequelizesrc file to update the configurations
   await createSequelizesrcFile(appPath, answers.database);
   // Create model index file if any database choosen
@@ -156,6 +170,8 @@ const buildExpressSkeleton = async (appName, path, options) => {
   await createENVandGitIgnorefile(appPath, answers.database);
   // Create a welcome page with partial components
   await createViewFiles(appPath, answers.appType, answers.templateEngine);
+  // Create prettier config file to format and beautify code
+  await createPrettierConfigFile(appPath)
   // Create tailwindcss config and main.css file if app type is web and template engine is selected
   await createTailwindConfigAndInputCssFile(
     appPath,
@@ -168,9 +184,10 @@ const buildExpressSkeleton = async (appName, path, options) => {
     const sequelizeAnswer = await inquirer.prompt({
       type: 'list',
       name: 'iSequelize',
-      message: 'For MySQL, sequelize-cli needs to be installed globally. Are you okay with it?',
-      choices: ['yes', 'no'],
-    })
+      message:
+        'For MySQL, sequelize-cli needs to be installed globally. Are you okay with it?',
+      choices: ['yes', 'no']
+    });
 
     if (sequelizeAnswer.iSequelize === 'yes') {
       shell.exec(`npm i -g sequelize-cli`, { silent: true });
@@ -195,7 +212,7 @@ const buildExpressSkeleton = async (appName, path, options) => {
   console.log(`└── ${chalk.italic.bold(appName)}
     ├── ${chalk.italic.bold('public')}
     ${
-      (answers.appType !== 'api')
+      answers.appType !== 'api'
         ? `|   ├── ${chalk.italic.bold('images')}
     |   ├── ${chalk.italic.bold('js')}
     |   └── ${chalk.italic.bold('css')}`
@@ -259,8 +276,9 @@ const buildExpressSkeleton = async (appName, path, options) => {
       { silent: true }
     );
 
+  shell.exec('npm run prettier', { silent: true })
   console.log(
-    `\n${chalk.bold.red('RUN')}: \n  ${chalk.greenBright.bold(`cd ${appName}`)}\n  && ${chalk.greenBright.bold(`npm run dev`)}       // To start dev server${answers.appType !== 'api' ? `\n  && ${chalk.greenBright.bold('npm run watch')}     // To start tailwindcss compiler` : ''}`
+    `\n${chalk.bold.red('RUN')}: \n  ${chalk.greenBright.bold(`cd ${appName}`)}\n  && ${chalk.greenBright.bold(`npm run dev`)}          // To start dev server${answers.appType !== 'api' ? `\n  && ${chalk.greenBright.bold('npm run watch')}        // To start tailwindcss compiler` : ''}\n  && ${chalk.greenBright.bold('npm run prettier')}     // To format and beautify your document`
   );
   console.log(`\n${chalk.blueBright.bold('!! HAPPY CODING !!')} \n`);
 };

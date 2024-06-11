@@ -5,11 +5,11 @@ export default [
   {
     env: {
       browser: true,
-      es6: true,
+      es6: true
     },
     files: ['**/*.js'],
     languageOptions: {
-      sourceType: 'commonjs',
+      sourceType: 'commonjs'
     },
     ignores: ['node_modules/*'],
     rules: {
@@ -17,13 +17,13 @@ export default [
       'linebreak-style': 'error',
       semi: 'error',
       'space-before-blocks': 'error',
-      'space-before-function-paren': 'error',
-    },
+      'space-before-function-paren': 'error'
+    }
   },
   {
     languageOptions: {
-      globals: globals.browser,
-    },
+      globals: globals.browser
+    }
   },
-  pluginJs.configs.recommended,
+  pluginJs.configs.recommended
 ];

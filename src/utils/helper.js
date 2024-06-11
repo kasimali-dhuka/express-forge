@@ -5,7 +5,7 @@ const installDependencies = async (dependencies) => {
   return new Promise((resolve, reject) => {
     const install = spawn(`npm i ${dependencies}`, {
       shell: true,
-      stdio: 'inherit',
+      stdio: 'inherit'
     });
 
     install.on('close', (code) => {
@@ -29,5 +29,5 @@ const copyFiles = async (fileSource, fileDestination, condition = null) => {
 
 module.exports = {
   installDependencies,
-  copyFiles,
+  copyFiles
 };
