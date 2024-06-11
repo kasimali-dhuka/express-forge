@@ -260,7 +260,7 @@ const buildExpressSkeleton = async (appName, path, options) => {
     );
 
   console.log(
-    `\n${chalk.bold.red('RUN')}: \n  ${chalk.greenBright.bold(`cd ${appName}`)}\n  && ${chalk.greenBright.bold(`npm run dev`)}       // To start dev server${answers.appType === 'web' ? `\n  && ${chalk.greenBright.bold('npm run watch')}     // To start tailwindcss compiler` : ''}`
+    `\n${chalk.bold.red('RUN')}: \n  ${chalk.greenBright.bold(`cd ${appName}`)}\n  && ${chalk.greenBright.bold(`npm run dev`)}       // To start dev server${answers.appType !== 'api' ? `\n  && ${chalk.greenBright.bold('npm run watch')}     // To start tailwindcss compiler` : ''}`
   );
   console.log(`\n${chalk.blueBright.bold('!! HAPPY CODING !!')} \n`);
 };
