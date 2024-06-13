@@ -1,4 +1,4 @@
-# EXPRESS-FORGE [![npm version](https://badge.fury.io/js/express-forge.svg)](https://badge.fury.io/js/express-forge)
+# EXPRESS-FORGE [![npm version](https://badge.fury.io/js/express-forge.png)](https://badge.fury.io/js/express-forge)
 
 ## Introduction
 
