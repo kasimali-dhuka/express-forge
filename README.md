@@ -39,9 +39,10 @@ express-forge <project_name>
 Options:
     --version, -v     Show version number
     --help, -h        Show help information
-    --db              Specify the database to use (choices: mysql, mongoose)                [string]
-    --app             Specify the app type (choices: web, api)                              [string]
-    --template        Specify the template engine to use (choices: ejs, pug, handlebars)    [string]
+    --db              Specify the database to use (choices: mysql, mongoose)                    [string]
+    --app             Specify the app type (choices: web, api or both)                                  [string]
+    --template        Specify the template engine to use (choices: ejs, pug, handlebars)        [string]
+    --socket          Specify which socket to be implemented (choices: socket.io, websocket)    [string]
 ```
 
 ### Examples:
@@ -56,6 +57,12 @@ Create an API with Mongoose as database:
 
 ```bash
 express-forge my-api --db=mongoose --app=api
+```
+
+Create an application with both API & Web app type and implement socket.io as well:
+
+```bash
+express-forge my-api --db=mongoose --app=both --socket=socket.io
 ```
 
 ## Server setup:
@@ -113,9 +120,11 @@ The express-forge generates the following folder structure:
     |       └── web.routes.js
     |
     ├── index.js
+    ├── socket.js
     ├── tailwind.config.js
     ├── package.json
     ├── .sequelizerc
+    ├── .prettierrc.json
     ├── .env.example
     ├── .gitignore
     └── .git
@@ -156,10 +165,10 @@ Node.js v7.6.0 or higher is required to use express-forge.
 Use the following command to create a new project:
 
 ```bash
-express-forge <project_name> --db=<database> --app=<app_type> --template=<template_engine>
+express-forge <project_name> --db=<database> --app=<app_type> --template=<template_engine> --socket=<socket>
 ```
 
-Replace <project-name>, <database>, <app_type>, and <template_engine> with your desired values.
+Replace <project-name>, <database>, <app_type>, <socket>, and <template_engine> with your desired values.
 
 #### 6. What databases are supported?
 
@@ -167,13 +176,17 @@ Currently, express-forge supports mysql and mongoose.
 
 #### 7. What application types can I create?
 
-You can create two types of applications: web and api.
+You can create two types of applications: web and api, you can even create the mixture of both application by passing or selecting "both" in the app type option.
 
 #### 8. What template engines are supported?
 
 Currently, express-forge supports ejs, pug, and express-handlebars.
 
-#### 9. How do I start the server?
+#### 9. Which socket libraries does express-forge package integrate?
+
+express-forge currently supports [Socket.IO](https://socket.io) and [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) libraries.
+
+#### 10. How do I start the server?
 
 Navigate to the project directory and run:
 
@@ -187,7 +200,7 @@ OR
 npm run start
 ```
 
-#### 10. How do I start the tailwindcss compiler?
+#### 11. How do I start the tailwindcss compiler?
 
 `express-forge` is already installed with tailwindcss and also initialized. We have already added the compiler command in the package.json file. You can start the tailwindcss compiler by navigating to the project directory and run:
 
@@ -195,13 +208,13 @@ npm run start
 npm run watch
 ```
 
-#### 11. Can I contribute to express-forge?
+#### 12. Can I contribute to express-forge?
 
 Yes, contributions are welcome! Please read the contributing guidelines (add a link to your contributing guidelines if available).
 
-#### 12. Where can I report issues or suggest features?
+#### 13. Where can I report issues or suggest features?
 
-You can report issues or suggest features on the GitHub Issues page.
+You can report issues or suggest features on the GitHub Issues page or you can join our [discord](https://discord.com/invite/yUMEtkrq) channel for futher discussion.
 
 ## License
 

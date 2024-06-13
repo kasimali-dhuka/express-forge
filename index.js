@@ -263,8 +263,9 @@ const buildExpressSkeleton = async (appName, path, options) => {
     |       ├── api.routes.js
     |       └── web.routes.js
     |
-    ├── index.js ${answers.templateEngine !== 'none' ? '\n    ├── tailwind.config.js' : ''}
+    ├── index.js ${answers.socket !== 'no' ? '\n    ├── socket.js' : ''} ${answers.templateEngine !== 'none' ? '\n    ├── tailwind.config.js' : ''}
     ├── package.json ${answers.database === 'mysql' ? '\n    ├── .sequelizerc' : ''}
+    ├── .prettierrc.json
     ├── .env.example
     ├── .gitignore
     └── ${chalk.italic.bold('.git')}
